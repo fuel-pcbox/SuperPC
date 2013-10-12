@@ -3,7 +3,6 @@ IBM5150
 
 An emulator of the IBM PC 5150, and its descendants and clones.
 
-<<<<<<< HEAD
 IRC Channel
 ===========
 
@@ -64,6 +63,3 @@ PIC
 ---
 
 It's sorta there, but still incomplete.
-=======
-THIS EMULATOR IS NO LONGER BEING DEVELOPED HERE. GO TO github.com/Alegend45/SuperPC FOR THE LATEST VERSION.
->>>>>>> 740fe3e00cb7826ef97342a28815ab3f8a7090bb
