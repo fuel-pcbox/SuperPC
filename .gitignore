@@ -6,3 +6,7 @@ stuff/
 log.txt
 bin/
 obj/
+bios.bin
+mda.rom
+gmon.out
+tests/iodev/floppy/version.bin

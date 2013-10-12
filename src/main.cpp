@@ -25,7 +25,7 @@ int main(int ac, char** av)
 {
     if(ac < 2)
     {
-        printf("Usage:\n\tibm5150 configfile\n");
+        printf("Usage:\n\tibm5150 cfgfile\n");
         return 1;
     }
 
@@ -65,6 +65,7 @@ int main(int ac, char** av)
 
     if(isa1slot == "mda")
     {
+		MDA::init();
         IO_XT::handlers.push_back(MDA::mdacrtc);
         INTERFACE::window_caption("IBM5150:  CPU: 8086 SYSTEM: IBM PC 5150 ISA1: MDA");
     }

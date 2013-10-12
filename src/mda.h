@@ -36,7 +36,7 @@ void putpix(int x, int y, u8 r, u8 g, u8 b);
 
 extern bool shouldblank;
 void tick_frame();
-
+void init();
 
 void mda_w(u16 addr, u8 value);
 
