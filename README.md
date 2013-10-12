@@ -15,7 +15,7 @@ So far, this emulator works only on Unix systems. It was tested on Ubuntu and Ar
 
 To compile IBM5150 you will need to install g++, yasm and SDL. After you've done that run:
 
-cd IBM5150; make; ./ibm5150 biosFile mdaFile mda.cfg > log.txt
+cd IBM5150; make; ./ibm5150 mda.cfg > log.txt
 
 You should see a black window on the screen and log.txt should contain everything the emulator has been doing.
 
