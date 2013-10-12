@@ -4,6 +4,11 @@
 //http://en.wikipedia.org/wiki/IBM_Monochrome_Display_Adapter
 namespace MDA
 {
+
+SDL_Surface* mdscr;
+const u32 MDW = 720;
+const u32 MDH = 350;
+
 u8 ROM[0x2000];
 u8 crtcindex = 0;
 u8 htotal = 0;
@@ -32,13 +37,19 @@ u8 status_r(u16 addr)
 
 void putpix(int x, int y, u8 r, u8 g, u8 b)
 {
-    u8* p = (u8*)INTERFACE::screen->pixels;
-    p[(((y*INTERFACE::screen->w)+x)*3)] = b;
-    p[(((y*INTERFACE::screen->w)+x)*3)+1] = g;
-    p[(((y*INTERFACE::screen->w)+x)*3)+2] = r;
+    u8* p = static_cast<u8*>(mdscr->pixels);//(u8*)INTERFACE::screen->pixels;
+    p[(((y*MDW)+x)*3)] = b;
+    p[(((y*MDW)+x)*3)+1] = g;
+    p[(((y*MDW)+x)*3)+2] = r;
 }
 
 bool shouldblank = false;
+
+void init()
+{
+	auto sff = INTERFACE::screen->format;
+	mdscr = SDL_CreateRGBSurface(SDL_SWSURFACE, MDW, MDH, sff->BitsPerPixel, sff->Rmask, sff->Gmask, sff->Bmask, sff->Amask); 
+}
 
 void tick_frame()
 {
@@ -173,6 +184,9 @@ void tick_frame()
     }
     framecount++;
     if(framecount == 0x1F) framecount = 0;
+    
+    
+    SDL_BlitSurface(mdscr, nullptr, INTERFACE::screen, NULL);
 }
 
 void mda_w(u16 addr, u8 value)
