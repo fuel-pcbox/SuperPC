@@ -3,10 +3,10 @@ CFLAGS=-std=c++11
 LIBS=-lSDL
 
 all:
-	$(CC) $(CFLAGS) src/*.cpp -o ibm5150 $(LIBS)
+	$(CC) $(CFLAGS) src/*.cpp -o superpc $(LIBS)
 	
 debug:
-	$(CC) $(CFLAGS) -g -pg src/*.cpp -o ibm5150 $(LIBS) -DDEBUG
+	$(CC) $(CFLAGS) -g -pg src/*.cpp -o superpc $(LIBS) -DDEBUG
 
 clean:
-	rm ibm5150
+	rm superpc

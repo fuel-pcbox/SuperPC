@@ -60,6 +60,7 @@ struct pic_t
 
     bool init1;
     bool init2;
+    bool init3;
 
     bool enabled;
 
@@ -70,12 +71,13 @@ struct pic_t
     u8 offset;
 };
 
-extern pic_t pic[1]; //The [1] is there to ease future AT implementation.
+extern pic_t pic[2];
 
 void pic1_w(u16 addr, u8 value);
 u8 pic1_r(u16 addr);
 
 extern iohandler pic1;
+extern iohandler pic2;
 
 } //namespace PIC
 

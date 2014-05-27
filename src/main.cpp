@@ -80,6 +80,7 @@ int main(int ac, char** av)
     IO_XT::handlers.push_back(PPI::handler);
     IO_XT::handlers.push_back(PIT::pit);
     IO_XT::handlers.push_back(PIC::pic1);
+    IO_XT::handlers.push_back(PIC::pic2);
     IO_XT::handlers.push_back(FDC::handler);
 
     bool quit = false;

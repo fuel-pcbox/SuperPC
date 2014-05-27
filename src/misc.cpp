@@ -232,7 +232,7 @@ iohandler pit = {0x0040,0x0043,rb,wb};
 namespace PIC
 {
 
-pic_t pic[1];
+pic_t pic[2];
 
 void pic1_w(u16 addr, u8 value)
 {
@@ -260,6 +260,11 @@ void pic1_w(u16 addr, u8 value)
         {
             pic[0].icw3 = 0;
             pic[0].init2 = false;
+            pic[0].init3 = true;
+        }
+        else if(pic[0].init3)
+        {
+            pic[0].init3 = false;
         }
         else
         {
@@ -286,7 +291,65 @@ u8 pic1_r(u16 addr)
     }
 }
 
+void pic2_w(u16 addr, u8 value)
+{
+    switch(addr)
+    {
+    case 0:
+    {
+        if(value & 0x10)
+        {
+            pic[1].icw1 = value & 0x1F;
+            pic[1].enabled = false;
+            pic[1].init1 = true;
+        }
+        break;
+    }
+    case 1:
+    {
+        if(pic[1].init1 == true)
+        {
+            pic[1].offset = value;
+            pic[1].init2 = true;
+            pic[1].init1 = false;
+        }
+        else if(pic[0].init2 == true)
+        {
+            pic[1].icw3 = 0;
+            pic[1].init2 = false;
+            pic[1].init3 = true;
+        }
+        else if(pic[1].init3)
+        {
+            pic[1].init3 = false;
+        }
+        else
+        {
+            pic[1].intrmask = value;
+        }
+        break;
+    }
+    }
+}
+u8 pic2_r(u16 addr)
+{
+    switch(addr)
+    {
+        case 0:
+        {
+            return 0;
+            break;
+        }
+        case 1:
+        {
+            return pic[1].intrmask;
+            break;
+        }
+    }
+}
+
 iohandler pic1 = {0x0020,0x0021,pic1_r,pic1_w};
+iohandler pic2 = {0x00A0,0x00A1,pic2_r,pic2_w};
 
 } //namespace PIC
 
@@ -633,6 +696,11 @@ u8 rb(u16 addr)
             else return 0x00;
             break;
         }
+        case 4:
+        {
+            return 0x00;
+            break;
+        }
     }
 }
 void wb(u16 addr, u8 data)
@@ -658,5 +726,5 @@ void wb(u16 addr, u8 data)
     }
     }
 }
-iohandler handler = {0x0060,0x0063,rb,wb};
+iohandler handler = {0x0060,0x0064,rb,wb};
 }  //namespace PPI

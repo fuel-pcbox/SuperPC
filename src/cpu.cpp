@@ -683,7 +683,7 @@ locs decodemodrm(int seg, u8 modrm, bool word, bool segarg)
     }
     case 0x87:
     {
-        u16 tmp1 = RAM::rb(cs,ip+1)|(RAM::rb(cs,ip+2)<<8);
+        u16 tmp1 = RAM::rb(cs,ip+2)|(RAM::rb(cs,ip+3)<<8);
         switch(seg)
         {
         case SEG_DEFAULT:
@@ -1227,7 +1227,7 @@ void rtick()
             al |= tmp;
             if(al == 0) flags |= 0x0040;
             else flags &= 0xFFBF;
-            ip+=3;
+            ip+=2;
             debug_print("OR AL,%02x\n",al);
             break;
         }
@@ -1237,7 +1237,7 @@ void rtick()
             ax |= tmp;
             if(ax == 0) flags |= 0x0040;
             else flags &= 0xFFBF;
-            ip+=2;
+            ip+=3;
             debug_print("OR AX,%04x\n",ax);
             break;
         }
@@ -1844,6 +1844,13 @@ void rtick()
             u16 tmp = *loc.src16;
             if(tmp == 0) flags |= 0x0040;
             else flags &= 0xFFBF;
+            u16 v = 0;
+            for(int i = 0; i<16; i++)
+            {
+                if(tmp & (1 << i)) v ^= 1;
+            }
+            if(!v) flags |= 0x0004;
+            else flags &= 0xFFFB;
             ip+=2;
             debug_print("XOR Ev,Gv modrm=%02x\n",modrm);
             break;
@@ -1856,6 +1863,13 @@ void rtick()
             u8 tmp = *loc.dst8;
             if(tmp == 0) flags |= 0x0040;
             else flags &= 0xFFBF;
+            u8 v = 0;
+            for(int i = 0; i<8; i++)
+            {
+                if(tmp & (1 << i)) v ^= 1;
+            }
+            if(!v) flags |= 0x0004;
+            else flags &= 0xFFFB;
             ip+=2;
             debug_print("XOR Gb,Eb modrm=%02x\n",modrm);
             break;
@@ -2876,6 +2890,8 @@ void rtick()
                 u8 tmp = *loc.src8 - op3;
                 if(tmp==0) flags |= 0x0040;
                 else flags &= 0xFFBF;
+                if(tmp>*loc.src8) flags |= 0x0001;
+                else flags &= 0xFFFE;
                 break;
             }
             }
@@ -2885,7 +2901,7 @@ void rtick()
         case 0x81:
         {
             u8 op2 = RAM::rb(cs,ip+1);
-            u8 op3 = RAM::rb(cs,ip+2) | (RAM::rb(cs,ip+3)<<8);
+            u16 op3 = RAM::rb(cs,ip+2) | (RAM::rb(cs,ip+3)<<8);
             locs loc = decodemodrm(seg,op2,true,false);
             switch(op2&0x38)
             {
@@ -2954,6 +2970,15 @@ void rtick()
             {
                 debug_print("ADD Ev,%02x\n",op3);
                 *loc.src16 += op3;
+                if(*loc.src16 == 0) flags |= 0x0040;
+                else flags &= 0xFFBF;
+                u16 v = 0;
+                for(int i = 0; i<16; i++)
+                {
+                    if(*loc.src16 & (1 << i)) v ^= 1;
+                }
+                if(!v) flags |= 0x0004;
+                else flags &= 0xFFFB;
                 break;
             }
             case 0x08:
@@ -3576,7 +3601,7 @@ void rtick()
         {
             u8 tmp = RAM::rb(cs,ip+1);
             u8 tmp1 = al & tmp;
-            if(tmp == 0) flags |= 0x0040;
+            if(tmp1 == 0) flags |= 0x0040;
             else flags &= 0xFFBF;
             debug_print("TEST AL, %02x\n",tmp);
             ip+=2;
@@ -3586,7 +3611,7 @@ void rtick()
         {
             u16 tmp = RAM::rb(cs,ip+1)|(RAM::rb(cs,ip+2)<<8);
             u16 tmp1 = ax & tmp;
-            if(tmp == 0) flags |= 0x0040;
+            if(tmp1 == 0) flags |= 0x0040;
             else flags &= 0xFFBF;
             debug_print("TEST AX, %04x\n",tmp);
             ip+=3;
@@ -3655,7 +3680,7 @@ void rtick()
         }
         case 0xAD:
         {
-            ax = RAM::rb(es,di)|(RAM::rb(es,di+1)<<8);
+            ax = RAM::rb(ds,si)|(RAM::rb(ds,si+1)<<8);
             if(!(flags&0x0400)) di+=2;
             else di-=2;
             ip++;
@@ -4842,6 +4867,7 @@ void rtick()
                 RAM::wb(ss,sp,(ip+2)&0xFF);
                 RAM::wb(ss,sp+1,(ip+2)>>8);
                 ip = *loc.src16;
+                ip-=2; //TODO: fix this hack
                 break;
             }
             case 0x18:
