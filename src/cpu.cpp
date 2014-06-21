@@ -1,4 +1,5 @@
 #include "cpu.h"
+#include "interface.h"
 
 namespace CPU {
 
@@ -191,7 +192,7 @@ locs decodemodrm(int seg, u8 modrm, bool word, bool segarg)
     }
     case 0x06:
     {
-        u16 tmp1 = RAM::rb(cs,ip+1)|(RAM::rb(cs,ip+2)<<8);
+        u16 tmp1 = RAM::rb(cs,ip+2)|(RAM::rb(cs,ip+3)<<8);
         switch(seg)
         {
         case SEG_DEFAULT:
@@ -248,7 +249,7 @@ locs decodemodrm(int seg, u8 modrm, bool word, bool segarg)
     }
     case 0x40:
     {
-        u16 tmp1 = RAM::rb(cs,ip+1);
+        u16 tmp1 = RAM::rb(cs,ip+2);
         switch(seg)
         {
         case SEG_DEFAULT:
@@ -277,28 +278,28 @@ locs decodemodrm(int seg, u8 modrm, bool word, bool segarg)
     }
     case 0x41:
     {
-        u16 tmp1 = RAM::rb(cs,ip+1);
+        u16 tmp1 = RAM::rb(cs,ip+2);
         switch(seg)
         {
         case SEG_DEFAULT:
         case SEG_DS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(ds,bx+di)];
+            res.src8 = &RAM::RAM[RAM::getaddr(ds,bx+di+tmp1)];
             break;
         }
         case SEG_CS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(cs,bx+di)];
+            res.src8 = &RAM::RAM[RAM::getaddr(cs,bx+di+tmp1)];
             break;
         }
         case SEG_ES:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(es,bx+di)];
+            res.src8 = &RAM::RAM[RAM::getaddr(es,bx+di+tmp1)];
             break;
         }
         case SEG_SS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(ss,bx+di)];
+            res.src8 = &RAM::RAM[RAM::getaddr(ss,bx+di+tmp1)];
             break;
         }
         }
@@ -306,28 +307,28 @@ locs decodemodrm(int seg, u8 modrm, bool word, bool segarg)
     }
     case 0x42:
     {
-        u16 tmp1 = RAM::rb(cs,ip+1);
+        u16 tmp1 = RAM::rb(cs,ip+2);
         switch(seg)
         {
         case SEG_DEFAULT:
         case SEG_SS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(ss,bp+si)];
+            res.src8 = &RAM::RAM[RAM::getaddr(ss,bp+si+tmp1)];
             break;
         }
         case SEG_CS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(cs,bp+si)];
+            res.src8 = &RAM::RAM[RAM::getaddr(cs,bp+si+tmp1)];
             break;
         }
         case SEG_ES:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(es,bp+si)];
+            res.src8 = &RAM::RAM[RAM::getaddr(es,bp+si+tmp1)];
             break;
         }
         case SEG_DS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(ds,bp+si)];
+            res.src8 = &RAM::RAM[RAM::getaddr(ds,bp+si+tmp1)];
             break;
         }
         }
@@ -335,28 +336,28 @@ locs decodemodrm(int seg, u8 modrm, bool word, bool segarg)
     }
     case 0x43:
     {
-        u16 tmp1 = RAM::rb(cs,ip+1);
+        u16 tmp1 = RAM::rb(cs,ip+2);
         switch(seg)
         {
         case SEG_DEFAULT:
         case SEG_SS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(ss,bp+di)];
+            res.src8 = &RAM::RAM[RAM::getaddr(ss,bp+di+tmp1)];
             break;
         }
         case SEG_CS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(cs,bp+di)];
+            res.src8 = &RAM::RAM[RAM::getaddr(cs,bp+di+tmp1)];
             break;
         }
         case SEG_ES:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(es,bp+di)];
+            res.src8 = &RAM::RAM[RAM::getaddr(es,bp+di+tmp1)];
             break;
         }
         case SEG_DS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(ds,bp+di)];
+            res.src8 = &RAM::RAM[RAM::getaddr(ds,bp+di+tmp1)];
             break;
         }
         }
@@ -364,28 +365,28 @@ locs decodemodrm(int seg, u8 modrm, bool word, bool segarg)
     }
     case 0x44:
     {
-        u16 tmp1 = RAM::rb(cs,ip+1);
+        u16 tmp1 = RAM::rb(cs,ip+2);
         switch(seg)
         {
         case SEG_DEFAULT:
         case SEG_DS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(ds,si)];
+            res.src8 = &RAM::RAM[RAM::getaddr(ds,si+tmp1)];
             break;
         }
         case SEG_CS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(cs,si)];
+            res.src8 = &RAM::RAM[RAM::getaddr(cs,si+tmp1)];
             break;
         }
         case SEG_ES:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(es,si)];
+            res.src8 = &RAM::RAM[RAM::getaddr(es,si+tmp1)];
             break;
         }
         case SEG_SS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(ss,si)];
+            res.src8 = &RAM::RAM[RAM::getaddr(ss,si+tmp1)];
             break;
         }
         }
@@ -393,28 +394,28 @@ locs decodemodrm(int seg, u8 modrm, bool word, bool segarg)
     }
     case 0x45:
     {
-        u16 tmp1 = RAM::rb(cs,ip+1);
+        u16 tmp1 = RAM::rb(cs,ip+2);
         switch(seg)
         {
         case SEG_DEFAULT:
         case SEG_DS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(ds,di)];
+            res.src8 = &RAM::RAM[RAM::getaddr(ds,di+tmp1)];
             break;
         }
         case SEG_CS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(cs,di)];
+            res.src8 = &RAM::RAM[RAM::getaddr(cs,di+tmp1)];
             break;
         }
         case SEG_ES:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(es,di)];
+            res.src8 = &RAM::RAM[RAM::getaddr(es,di+tmp1)];
             break;
         }
         case SEG_SS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(ss,di)];
+            res.src8 = &RAM::RAM[RAM::getaddr(ss,di+tmp1)];
             break;
         }
         }
@@ -422,7 +423,7 @@ locs decodemodrm(int seg, u8 modrm, bool word, bool segarg)
     }
     case 0x46:
     {
-        u16 tmp1 = RAM::rb(cs,ip+1);
+        u16 tmp1 = RAM::rb(cs,ip+2);
         switch(seg)
         {
         case SEG_DEFAULT:
@@ -451,7 +452,7 @@ locs decodemodrm(int seg, u8 modrm, bool word, bool segarg)
     }
     case 0x47:
     {
-        u16 tmp1 = RAM::rb(cs,ip+1);
+        u16 tmp1 = RAM::rb(cs,ip+2);
         switch(seg)
         {
         case SEG_DEFAULT:
@@ -480,7 +481,7 @@ locs decodemodrm(int seg, u8 modrm, bool word, bool segarg)
     }
     case 0x80:
     {
-        u16 tmp1 = RAM::rb(cs,ip+1)|(RAM::rb(cs,ip+2)<<8);
+        u16 tmp1 = RAM::rb(cs,ip+2)|(RAM::rb(cs,ip+3)<<8);
         switch(seg)
         {
         case SEG_DEFAULT:
@@ -509,28 +510,28 @@ locs decodemodrm(int seg, u8 modrm, bool word, bool segarg)
     }
     case 0x81:
     {
-        u16 tmp1 = RAM::rb(cs,ip+1)|(RAM::rb(cs,ip+2)<<8);
+        u16 tmp1 = RAM::rb(cs,ip+2)|(RAM::rb(cs,ip+3)<<8);
         switch(seg)
         {
         case SEG_DEFAULT:
         case SEG_DS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(ds,bx+di)];
+            res.src8 = &RAM::RAM[RAM::getaddr(ds,bx+di+tmp1)];
             break;
         }
         case SEG_CS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(cs,bx+di)];
+            res.src8 = &RAM::RAM[RAM::getaddr(cs,bx+di+tmp1)];
             break;
         }
         case SEG_ES:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(es,bx+di)];
+            res.src8 = &RAM::RAM[RAM::getaddr(es,bx+di+tmp1)];
             break;
         }
         case SEG_SS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(ss,bx+di)];
+            res.src8 = &RAM::RAM[RAM::getaddr(ss,bx+di+tmp1)];
             break;
         }
         }
@@ -538,28 +539,28 @@ locs decodemodrm(int seg, u8 modrm, bool word, bool segarg)
     }
     case 0x82:
     {
-        u16 tmp1 = RAM::rb(cs,ip+1)|(RAM::rb(cs,ip+2)<<8);
+        u16 tmp1 = RAM::rb(cs,ip+2)|(RAM::rb(cs,ip+3)<<8);
         switch(seg)
         {
         case SEG_DEFAULT:
         case SEG_SS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(ss,bp+si)];
+            res.src8 = &RAM::RAM[RAM::getaddr(ss,bp+si+tmp1)];
             break;
         }
         case SEG_CS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(cs,bp+si)];
+            res.src8 = &RAM::RAM[RAM::getaddr(cs,bp+si+tmp1)];
             break;
         }
         case SEG_ES:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(es,bp+si)];
+            res.src8 = &RAM::RAM[RAM::getaddr(es,bp+si+tmp1)];
             break;
         }
         case SEG_DS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(ds,bp+si)];
+            res.src8 = &RAM::RAM[RAM::getaddr(ds,bp+si+tmp1)];
             break;
         }
         }
@@ -567,28 +568,28 @@ locs decodemodrm(int seg, u8 modrm, bool word, bool segarg)
     }
     case 0x83:
     {
-        u16 tmp1 = RAM::rb(cs,ip+1)|(RAM::rb(cs,ip+2)<<8);
+        u16 tmp1 = RAM::rb(cs,ip+2)|(RAM::rb(cs,ip+3)<<8);
         switch(seg)
         {
         case SEG_DEFAULT:
         case SEG_SS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(ss,bp+di)];
+            res.src8 = &RAM::RAM[RAM::getaddr(ss,bp+di+tmp1)];
             break;
         }
         case SEG_CS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(cs,bp+di)];
+            res.src8 = &RAM::RAM[RAM::getaddr(cs,bp+di+tmp1)];
             break;
         }
         case SEG_ES:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(es,bp+di)];
+            res.src8 = &RAM::RAM[RAM::getaddr(es,bp+di+tmp1)];
             break;
         }
         case SEG_DS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(ds,bp+di)];
+            res.src8 = &RAM::RAM[RAM::getaddr(ds,bp+di+tmp1)];
             break;
         }
         }
@@ -625,28 +626,28 @@ locs decodemodrm(int seg, u8 modrm, bool word, bool segarg)
     }
     case 0x85:
     {
-        u16 tmp1 = RAM::rb(cs,ip+1)|(RAM::rb(cs,ip+2)<<8);
+        u16 tmp1 = RAM::rb(cs,ip+2)|(RAM::rb(cs,ip+3)<<8);
         switch(seg)
         {
         case SEG_DEFAULT:
         case SEG_DS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(ds,di)];
+            res.src8 = &RAM::RAM[RAM::getaddr(ds,di+tmp1)];
             break;
         }
         case SEG_CS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(cs,di)];
+            res.src8 = &RAM::RAM[RAM::getaddr(cs,di+tmp1)];
             break;
         }
         case SEG_ES:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(es,di)];
+            res.src8 = &RAM::RAM[RAM::getaddr(es,di+tmp1)];
             break;
         }
         case SEG_SS:
         {
-            res.src8 = &RAM::RAM[RAM::getaddr(ss,di)];
+            res.src8 = &RAM::RAM[RAM::getaddr(ss,di+tmp1)];
             break;
         }
         }
@@ -654,7 +655,7 @@ locs decodemodrm(int seg, u8 modrm, bool word, bool segarg)
     }
     case 0x86:
     {
-        u16 tmp1 = RAM::rb(cs,ip+1)|(RAM::rb(cs,ip+2)<<8);
+        u16 tmp1 = RAM::rb(cs,ip+2)|(RAM::rb(cs,ip+3)<<8);
         switch(seg)
         {
         case SEG_DEFAULT:
@@ -1176,7 +1177,7 @@ void rtick()
         case 0x08:
         {
             u8 modrm = RAM::rb(cs,ip+1);
-            locs loc = decodemodrm(seg,modrm,true,false);
+            locs loc = decodemodrm(seg,modrm,false,false);
             *loc.src8 |= *loc.dst8;
             u8 tmp = *loc.src8;
             if(tmp == 0) flags |= 0x0040;
@@ -1200,7 +1201,7 @@ void rtick()
         case 0x0A:
         {
             u8 modrm = RAM::rb(cs,ip+1);
-            locs loc = decodemodrm(seg,modrm,true,false);
+            locs loc = decodemodrm(seg,modrm,false,false);
             *loc.dst8 |= *loc.src8;
             u8 tmp = *loc.dst8;
             if(tmp == 0) flags |= 0x0040;
@@ -2838,8 +2839,8 @@ void rtick()
         case 0x82:
         {
             u8 op2 = RAM::rb(cs,ip+1);
-            u8 op3 = RAM::rb(cs,ip+2);
             locs loc = decodemodrm(seg,op2,false,false);
+            u8 op3 = RAM::rb(cs,ip+2);
             switch(op2&0x38)
             {
             case 0x00:
@@ -2901,8 +2902,8 @@ void rtick()
         case 0x81:
         {
             u8 op2 = RAM::rb(cs,ip+1);
-            u16 op3 = RAM::rb(cs,ip+2) | (RAM::rb(cs,ip+3)<<8);
             locs loc = decodemodrm(seg,op2,true,false);
+            u16 op3 = RAM::rb(cs,ip+2) | (RAM::rb(cs,ip+3)<<8);
             switch(op2&0x38)
             {
             case 0x00:
@@ -3122,7 +3123,7 @@ void rtick()
         {
             u8 modrm = RAM::rb(cs,ip+1);
             locs loc = decodemodrm(seg,modrm,true,false);
-            u16 tmp = (u16)(loc.dst16 - (u16*)&RAM::RAM[0]);
+            u16 tmp = (u16)(loc.src8 - (u8*)&RAM::RAM[0]);
             switch(seg)
             {
             case SEG_DEFAULT:
@@ -3147,7 +3148,7 @@ void rtick()
                 break;
             }
             }
-            *loc.src16 = tmp;
+            *loc.dst16 = tmp;
             ip+=2;
             debug_print("LEA Gv,M modrm=%02x\n",modrm);
             break;
@@ -3455,11 +3456,11 @@ void rtick()
                         di--;
                         si--;
                     }
-                    ip++;
                     if(tmp == 0) flags |= 0x0040;
                     else flags &= 0xFFBF;
-                    if(!(flags & 0x0040)) break;
+                    if(!(tmp == 0)) break;
                 }
+                ip++;
                 debug_print("REPE CMPSB\n");
                 break;
             }
@@ -4050,8 +4051,8 @@ void rtick()
         {
             u8 modrm = RAM::rb(cs,ip+1);
             locs loc = decodemodrm(seg,modrm,true,false);
-            u16 tmp = RAM::rb(cs,ip+2)|(RAM::rb(cs,ip+3)<<8);
-            u16 tmp1 = RAM::rb(cs,ip+4)|(RAM::rb(cs,ip+5)<<8);
+            u16 tmp = *loc.src16;
+            u16 tmp1 = *(loc.src16 + 1);
             *loc.dst16 = tmp;
             es = tmp1;
             ip+=6;
@@ -4062,8 +4063,8 @@ void rtick()
         {
             u8 modrm = RAM::rb(cs,ip+1);
             locs loc = decodemodrm(seg,modrm,true,false);
-            u16 tmp = RAM::rb(cs,ip+2)|(RAM::rb(cs,ip+3)<<8);
-            u16 tmp1 = RAM::rb(cs,ip+4)|(RAM::rb(cs,ip+5)<<8);
+            u16 tmp = *loc.src16;
+            u16 tmp1 = *(loc.src16 + 1);
             *loc.dst16 = tmp;
             ds = tmp1;
             ip+=6;
@@ -4161,7 +4162,44 @@ void rtick()
         case 0xCD:
         {
             u8 tmp = RAM::rb(cs,ip+1);
-            interrupt(tmp,2);
+            if(tmp == 0x13) //TODO: HACK
+            {
+                switch(ah)
+                {
+                case 0x00:
+                {
+                    ah = 0;
+                    flags &= 0xFFFE;
+                    ip+=2;
+                    debug_print("Software Interrupt 0x13 function 0x00 triggered! HLEing!\n");
+                    break;
+                }
+                case 0x02:
+                {
+                    for(int i = 0;i<al;i++)
+                    {
+                        INTERFACE::read_floppy_sector(ch,dh,cl+i);
+                    }
+                    ip+=2;
+                    debug_print("Software Interrupt 0x13 function 0x02 triggered! HLEing!\n");
+                    break;
+                }
+                case 0x08:
+                {
+                    flags &= 0xFFFE;
+                    ah = 0;
+                    al = 0;
+                    dl = 1;
+                    ip+=2;
+                    debug_print("Software Interrupt 0x13 function 0x08 triggered! HLEing!\n");
+                }
+                }
+            }
+            else if(tmp == 0x16)
+            {
+                ip+=2;
+            }
+            else interrupt(tmp,2);
             debug_print("INT %02x\n",tmp);
             break;
         }
@@ -4755,16 +4793,24 @@ void rtick()
             }
             case 0x30:
             {
-                u16 tmp = (ax|(dx<<16)) / *loc.src8;
+                if(*loc.src16 != 0)
+                {
+                u16 tmp = (ax|(dx<<16)) / *loc.src16;
                 u16 tmp1 = (ax|(dx<<16)) - (tmp * (*loc.src16));
                 ax = tmp;
                 dx = tmp1;
+                }
+                else
+                {
+                ax = 0xFFFF;
+                dx = 0xFFFF;
+                }
                 debug_print("DIV Ev\n");
                 break;
             }
             case 0x38:
             {
-                u16 tmp = (ax|(dx<<16)) / *loc.src8;
+                u16 tmp = (ax|(dx<<16)) / *loc.src16;
                 u16 tmp1 = (ax|(dx<<16)) - (tmp * (*loc.src16));
                 ax = tmp;
                 dx = tmp1;
@@ -4826,7 +4872,7 @@ void rtick()
             case 0x00:
             {
                 debug_print("INC Eb\n");
-                *loc.src8++;
+                *loc.src8 = *loc.src8 + 1;
                 break;
             }
             case 0x08:
@@ -4889,6 +4935,7 @@ void rtick()
             {
                 debug_print("JMP Ev\n");
                 ip = *loc.src16;
+                ip-=2;
                 break;
             }
             case 0x28:

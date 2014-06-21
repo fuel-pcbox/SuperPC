@@ -20,6 +20,9 @@
     #endif //dx
 #endif // USE_SDL
 
+#include "ram.h"
+#include "cpu.h"
+
 //TODO: why not a class?
 namespace INTERFACE
 {
@@ -32,6 +35,8 @@ typedef SDL_Surface Surface;
 typedef SDL_Event Event;
 #endif
 
+extern FILE* flop1;
+
 extern Surface* screen;
 
 inline int init(int width = 720, int height = 350)
@@ -43,6 +48,7 @@ inline int init(int width = 720, int height = 350)
 
 inline void quit()
 {
+    if(flop1) fclose(flop1);
     SDL_Quit();
 }
 
@@ -58,6 +64,9 @@ inline int update_screen()
 
 int handle_events();
 
+void load_floppy(const char* filename);
+
+void read_floppy_sector(unsigned cylinder, unsigned head, unsigned sector);
 
 } //namespace INTERFACE
 

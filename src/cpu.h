@@ -44,7 +44,8 @@ typedef union reg16
 {
     struct
     {
-        u8 lo,hi;
+        u8 lo;
+        u8 hi;
     } parts;
     u16 w;
 } reg16;
@@ -69,6 +70,7 @@ extern reg16 aw,bw,cw,dw,ew;
 #define dh dw.parts.hi
 
 extern u16 ds,es,ss;
+
 extern u16 sp,bp,si,di;
 extern u16 tr;
 extern u16 cs;

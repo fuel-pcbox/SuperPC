@@ -5,8 +5,10 @@
 namespace INTERFACE
 {
 
+FILE* flop1 = nullptr;
+
 bool quitflag = false;
-bool emulatingflag = true;
+bool emulatingflag = false;
 Surface* screen = NULL;
 
 extern inline int init(int width, int height);
@@ -14,6 +16,16 @@ extern inline void quit();
 extern inline void window_caption(const char *title, const char *icon);
 extern inline int update_screen();
 
+void load_floppy(const char* filename)
+{
+    flop1 = fopen(filename,"rb");
+}
+
+void read_floppy_sector(unsigned cylinder, unsigned head, unsigned sector)
+{
+    fseek(flop1,((((cylinder * 2) + head) * 18)+sector-1)*512,SEEK_SET);
+    fread(RAM::RAM + RAM::getaddr(CPU::es,CPU::bx),1,512,flop1);
+}
 
 int handle_events()
 {

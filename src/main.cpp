@@ -38,11 +38,13 @@ int main(int ac, char** av)
     char* isa1 = new char[10];
     char* biosrom = new char[256];
     char* mdarom = new char[256];
+    char* flop1 = new char[256];
 
     FILE* config = fopen(av[1],"r");
     fscanf(config,"isa1=%s\n",isa1);
     fscanf(config,"biosrom=%s\n",biosrom);
     fscanf(config,"mdarom=%s\n",mdarom);
+    fscanf(config,"flop1=%s\n",flop1);
     fclose(config);
     
     FILE* bios = fopen(biosrom,"rb");
@@ -62,10 +64,12 @@ int main(int ac, char** av)
     delete[] isa1;
 
     INTERFACE::init();
+    
+    INTERFACE::load_floppy(flop1);
 
     if(isa1slot == "mda")
     {
-		MDA::init();
+        MDA::init();
         IO_XT::handlers.push_back(MDA::mdacrtc);
         INTERFACE::window_caption("IBM5150:  CPU: 8086 SYSTEM: IBM PC 5150 ISA1: MDA");
     }
