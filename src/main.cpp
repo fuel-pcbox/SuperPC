@@ -46,14 +46,22 @@ int main(int ac, char** av)
     fscanf(config,"mdarom=%s\n",mdarom);
     fscanf(config,"flop1=%s\n",flop1);
     fclose(config);
-    
+
     FILE* bios = fopen(biosrom,"rb");
+    if (bios == NULL) {
+        fprintf(stderr, "failed opening BIOS ROM: %s\n", strerror(errno));
+        return 1;
+    }
     fseek(bios,0,SEEK_END);
     long size = ftell(bios);
     fseek(bios,0,SEEK_SET);
     fread(RAM::RAM + (0x100000 - size),1,size,bios);
-    
+
     FILE* mda = fopen(mdarom,"rb");
+    if (mda == NULL) {
+        fprintf(stderr, "failed opening MDA ROM: %s\n", strerror(errno));
+        return 1;
+    }
     fread(MDA::ROM,1,0x2000,mda);
     fseek(mda,0,SEEK_SET);
     fread(CGA::ROM,1,0x2000,mda);
@@ -64,7 +72,7 @@ int main(int ac, char** av)
     delete[] isa1;
 
     INTERFACE::init();
-    
+
     INTERFACE::load_floppy(flop1);
 
     if(isa1slot == "mda")
@@ -115,27 +123,27 @@ int main(int ac, char** av)
         fread(&CPU::flags,2,1,fp);
         fclose(fp);
     }
-    
+
     fp = fopen("save/mda.dump","rb");
     if(fp != NULL)
     {
         fread(&MDA::hdisp,1,1,fp);
         fread(&MDA::vdisp,1,1,fp);
         fread(&MDA::maxscan,1,1,fp);
-        fread(&MDA::dispmode,1,1,fp); 
+        fread(&MDA::dispmode,1,1,fp);
         fclose(fp);
     }
-    
+
     fp = fopen("save/cga.dump","rb");
     if(fp != NULL)
     {
         fread(&CGA::hdisp,1,1,fp);
         fread(&CGA::vdisp,1,1,fp);
         fread(&CGA::maxscan,1,1,fp);
-        fread(&CGA::dispmode,1,1,fp); 
+        fread(&CGA::dispmode,1,1,fp);
         fclose(fp);
     }
-    
+
     fp = fopen("save/pic.dump","rb");
     if(fp != NULL)
     {
@@ -144,9 +152,9 @@ int main(int ac, char** av)
         fread(&PIC::pic[0].enabled,sizeof(bool),1,fp);
         fclose(fp);
     }
-    
+
     bool debugsaved = false;
-    
+
     std::thread pitthread([]()
     {
         PIT::tick();
@@ -154,7 +162,7 @@ int main(int ac, char** av)
     });
 
     while(INTERFACE::quitflag == false)
-    { 
+    {
         if(i==100)
         {
             i = 0;
@@ -166,14 +174,14 @@ int main(int ac, char** av)
 
         //TODO: remove SDL_* prefix
         INTERFACE::handle_events();
-        
+
         CPU::tick();
-        
+
         if(CPU::hint == true) CPU::hint = false;
-        
-        i++; 
+
+        i++;
     }
-    
+
     pitthread.join();
 
     INTERFACE::quit();
