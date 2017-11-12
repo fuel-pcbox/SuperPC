@@ -1,12 +1,17 @@
-CC=g++
-CFLAGS=-std=c++11
-LIBS=-lSDL
+CXX=g++
+CFLAGS=-std=c++14
+LIBS=-lmingw32 -lSDLmain -lSDL -mwindows
+VPATH = src
+OBJ = attotime.o cga.o cpu.o interface.o main.o mda.o misc.o ram.o savestate.o
 
-all:
-	$(CC) $(CFLAGS) src/*.cpp -o superpc $(LIBS)
+all: $(OBJ)
+	$(CXX) $(CFLAGS) $(OBJ) -o superpc $(LIBS)
 	
 debug:
-	$(CC) $(CFLAGS) -g -pg src/*.cpp -o superpc $(LIBS) -DDEBUG
+	$(CXX) $(CFLAGS) -g -pg $(OBJ) -o superpc $(LIBS) -DDEBUG
 
 clean:
-	rm superpc
+	rm *.o && rm superpc
+
+%.o: %.cpp
+	$(CXX) $(CFLAGS) -c $<
