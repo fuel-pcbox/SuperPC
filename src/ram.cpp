@@ -3,13 +3,14 @@
 namespace RAM
 {
 u8 RAM[0x100000];
+u8 BIOS[0x20000];
 std::vector<memhandler> handlers;
 bool write;
 
 u32 getaddr(u16 seg, u16 offset)
 {
-    if(!(CPU::cr0 & 1)) return ((seg<<4)+offset)&0xFFFFF;
-    else
+    /*if(!(CPU::cr0 & 1))*/ return ((seg<<4)+offset)&0xFFFFF;
+    /*else
     {
         u8 tmp = seg & 0xFFF8;
         if(seg & 0x0004)
@@ -38,8 +39,15 @@ u32 getaddr(u16 seg, u16 offset)
             else addr+=offset;
             return addr;
         }
-    }
+    }*/
 }
+
+u8 bios_rb(u32 addr)
+{
+    return BIOS[addr & 0x1ffff];
+}
+
+memhandler bios_handler = {0xe0000, 0x100000, bios_rb, nullptr};
 
 u8 rb(u16 seg, u16 off)
 {
@@ -47,7 +55,6 @@ u8 rb(u16 seg, u16 off)
     u32 addr = getaddr(seg,off);
     for(i = 0; i<handlers.size(); i++)
     {
-        if(i == handlers.size()) break;
         if(addr>handlers[i].start && addr<handlers[i].end) return handlers[i].rb(addr-handlers[i].start);
     }
     return RAM[addr];
@@ -62,7 +69,7 @@ void wb(u16 seg, u16 off, u8 value)
         if(i == handlers.size()) break;
         if(addr>handlers[i].start && addr<handlers[i].end)
         {
-            handlers[i].wb(addr,value);
+            if(handlers[i].wb != nullptr) handlers[i].wb(addr,value);
             return;
         }
     }

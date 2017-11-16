@@ -11,10 +11,11 @@ namespace CPU
 
 enum cputype
 {
-    intel8086 = 0,
-    necv20,
-    intel286,
-    intel386
+    intel8088 = 0,
+    intel8086 = 1,
+    necv20 = 2,
+    intel286 = 3,
+    intel386 = 4,
 };
 
 struct locs

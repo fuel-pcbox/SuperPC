@@ -18,8 +18,11 @@ struct memhandler
 namespace RAM
 {
 extern u8 RAM[0x100000];
+extern u8 BIOS[0x20000];
 extern std::vector<memhandler> handlers;
 extern bool write;
+
+extern memhandler bios_handler;
 
 u32 getaddr(u16 seg, u16 offset);
 

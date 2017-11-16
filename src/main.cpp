@@ -5,6 +5,7 @@
 #include <chrono>
 #include <thread>
 
+#include "attotime.h"
 #include "interface.h"
 #include "misc.h"
 
@@ -25,9 +26,14 @@ int main(int ac, char** av)
 {
     if(ac < 2)
     {
-        printf("Usage:\n\tibm5150 cfgfile\n");
+        printf("Usage:\n\tsuperpc cfgfile\n");
         return 1;
     }
+
+    attotime cpuclock;
+    attotime pitclock;
+    attotime current_time;
+    attotime frame_time;
 
     PIC::pic[0].init1 = false;
     PIC::pic[0].init2 = false;
@@ -36,32 +42,30 @@ int main(int ac, char** av)
     CPU::cr0 = 0;
 
     char* isa1 = new char[10];
-    char* biosrom = new char[256];
-    char* mdarom = new char[256];
+    char* machine = new char[256];
     char* flop1 = new char[256];
+    u32 cpuclock_cfg = 4772727;
 
     FILE* config = fopen(av[1],"r");
     fscanf(config,"isa1=%s\n",isa1);
-    fscanf(config,"biosrom=%s\n",biosrom);
-    fscanf(config,"mdarom=%s\n",mdarom);
+    fscanf(config,"machine=%s\n",machine);
+    fscanf(config,"cpuclock=%d\n",cpuclock_cfg);
     fscanf(config,"flop1=%s\n",flop1);
     fclose(config);
+
+    cpuclock = attotime::from_hz(cpuclock_cfg);
     
-    FILE* bios = fopen(biosrom,"rb");
-    fseek(bios,0,SEEK_END);
-    long size = ftell(bios);
-    fseek(bios,0,SEEK_SET);
-    fread(RAM::RAM + (0x100000 - size),1,size,bios);
-    
-    FILE* mda = fopen(mdarom,"rb");
+    FILE* mda = fopen("roms/video/mda/mda.rom","rb");
     fread(MDA::ROM,1,0x2000,mda);
     fseek(mda,0,SEEK_SET);
     fread(CGA::ROM,1,0x2000,mda);
     fclose(mda);
-    fclose(bios);
 
     std::string isa1slot = isa1;
     delete[] isa1;
+
+    std::string machinetype = machine;
+    delete[] machine;
 
     INTERFACE::init();
     
@@ -71,21 +75,33 @@ int main(int ac, char** av)
     {
         MDA::init();
         IO_XT::handlers.push_back(MDA::mdacrtc);
-        INTERFACE::window_caption("IBM5150:  CPU: 8086 SYSTEM: IBM PC 5150 ISA1: MDA");
+        INTERFACE::window_caption("SuperPC v0.0.1");
     }
     if(isa1slot == "cga")
     {
         IO_XT::handlers.push_back(CGA::cgacrtc);
-        INTERFACE::window_caption("IBM5150:  CPU: 8086 SYSTEM: IBM PC 5150 ISA1: CGA");
+        INTERFACE::window_caption("SuperPC v0.0.1");
     }
 
-    IO_XT::handlers.push_back(DMA_XT::handler);
-    IO_XT::handlers.push_back(DMA_XT::handler2);
-    IO_XT::handlers.push_back(PPI::handler);
-    IO_XT::handlers.push_back(PIT::pit);
-    IO_XT::handlers.push_back(PIC::pic1);
-    IO_XT::handlers.push_back(PIC::pic2);
-    IO_XT::handlers.push_back(FDC::handler);
+    if(machinetype == "ibm5150")
+    {
+        CPU::type = CPU::intel8088;
+        pitclock = attotime::from_hz(157500000/11/12);
+        FILE* biosfp = fopen("roms/machines/ibmpc/pc102782.bin", "rb");
+        fread(RAM::BIOS + 0x1e000,0x2000,1,biosfp);
+        fclose(biosfp);
+        biosfp = fopen("roms/machines/ibmpc/ibm-basic-1.10.rom", "rb");
+        fread(RAM::BIOS + 0x16000,0x8000,1,biosfp);
+        fclose(biosfp);
+
+        RAM::handlers.push_back(RAM::bios_handler);
+        IO_XT::handlers.push_back(DMA_XT::handler);
+        IO_XT::handlers.push_back(DMA_XT::handler2);
+        IO_XT::handlers.push_back(PPI::handler);
+        IO_XT::handlers.push_back(PIT::pit);
+        IO_XT::handlers.push_back(PIC::pic1);
+        IO_XT::handlers.push_back(FDC::handler);
+    }
 
     bool quit = false;
     int i = 0;
@@ -146,23 +162,18 @@ int main(int ac, char** av)
     }
     
     bool debugsaved = false;
-    
-    std::thread pitthread([]()
-    {
-        PIT::tick();
-        std::this_thread::sleep_for(std::chrono::microseconds(1));
-    });
 
     while(INTERFACE::quitflag == false)
-    { 
-        if(i==100)
+    {
+        /*if(i==100)
         {
             i = 0;
             if(isa1slot == "mda") MDA::tick_frame();
             if(isa1slot == "cga") CGA::tick_frame();
             INTERFACE::update_screen();
-        }
-
+        }*/
+        
+        fflush(stdout);
 
         //TODO: remove SDL_* prefix
         INTERFACE::handle_events();
@@ -171,10 +182,24 @@ int main(int ac, char** av)
         
         if(CPU::hint == true) CPU::hint = false;
         
-        i++; 
+        current_time += cpuclock;
+        frame_time += cpuclock;
+        if(current_time >= pitclock)
+        {
+            PIT::tick();
+            current_time -= pitclock;
+        }
+        if(frame_time >= attotime::from_hz(50) && isa1slot == "mda")
+        {
+            MDA::tick_frame();
+            frame_time -= attotime::from_hz(50);
+        }
+        else if(frame_time >= attotime::from_hz(60) && isa1slot == "cga")
+        {
+            CGA::tick_frame();
+            frame_time -= attotime::from_hz(60);
+        }
     }
-    
-    pitthread.join();
 
     INTERFACE::quit();
 
