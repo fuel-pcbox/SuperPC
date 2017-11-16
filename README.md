@@ -1,25 +1,22 @@
-IBM5150
+SuperPC
 =======
 
 An emulator of the IBM PC 5150, and its descendants and clones.
 
-IRC Channel
-===========
-
-Join x8x channel at freenode to talk about the emulator.
+License
+=======
+attotime.h, attotime.cpp, eminline.h, and emucore.h are all under the BSD 3 Clause License. These files are from MAME.
 
 Compiling and running
 =====================
 
-So far, this emulator works only on Unix systems. It was tested on Ubuntu and Arch Linux.
+To compile SuperPC you will need to install g++, yasm and SDL. After you've done that run:
 
-To compile IBM5150 you will need to install g++, yasm and SDL. After you've done that run:
-
-cd IBM5150; make; ./ibm5150 mda.cfg > log.txt
+make; ./superpc mda.cfg > log.txt
 
 You should see a black window on the screen and log.txt should contain everything the emulator has been doing.
 
-You can get character ROM from http://www.minuszerodegrees.net/rom/IBM_5788005_AM9264_1981_CGA_MDA_CARD.BIN and BIOS from http://www.minuszerodegrees.net/bios/bios.htm.
+This emulator uses the same BIOS pack as 86Box.
 
 Todo
 ====
