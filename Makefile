@@ -1,5 +1,5 @@
 CXX=g++
-CFLAGS=-std=c++14 -DDEBUG -g -pg
+CFLAGS=-std=c++14 -DDEBUG -g -pg -DUSE_SDL
 LIBS=-lmingw32 -lSDLmain -lSDL -mwindows
 VPATH = src
 OBJ = attotime.o cga.o cpu808x.o interface.o main.o mda.o misc.o ram.o savestate.o

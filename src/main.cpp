@@ -51,7 +51,6 @@ int main(int ac, char** av)
     fscanf(config,"machine=%s\n",machine);
     fscanf(config,"cpuclock=%d\n",cpuclock_cfg);
     fscanf(config,"flop1=%s\n",flop1);
-    fclose(config);
 
     cpuclock = attotime::from_hz(cpuclock_cfg);
     
@@ -75,12 +74,10 @@ int main(int ac, char** av)
     {
         MDA::init();
         IO_XT::handlers.push_back(MDA::mdacrtc);
-        INTERFACE::window_caption("SuperPC v0.0.1");
     }
     if(isa1slot == "cga")
     {
         IO_XT::handlers.push_back(CGA::cgacrtc);
-        INTERFACE::window_caption("SuperPC v0.0.1");
     }
 
     if(machinetype == "ibm5150")
@@ -102,6 +99,27 @@ int main(int ac, char** av)
         IO_XT::handlers.push_back(PIC::pic1);
         IO_XT::handlers.push_back(FDC::handler);
     }
+
+    if(machinetype == "test")
+    {
+        CPU::type = CPU::intel8088;
+        pitclock = attotime::from_hz(157500000/11/12);
+        char* testrom = new char[256];
+        fscanf(config,"testrom=%s\n",testrom);
+        FILE* testromfp = fopen(testrom, "rb");
+        fread(RAM::BIOS + 0x1e000,0x2000,1,testromfp);
+        fclose(testromfp);
+
+        RAM::handlers.push_back(RAM::bios_handler);
+        IO_XT::handlers.push_back(DMA_XT::handler);
+        IO_XT::handlers.push_back(DMA_XT::handler2);
+        IO_XT::handlers.push_back(PPI::handler);
+        IO_XT::handlers.push_back(PIT::pit);
+        IO_XT::handlers.push_back(PIC::pic1);
+        IO_XT::handlers.push_back(FDC::handler);
+    }
+
+    fclose(config);
 
     bool quit = false;
     int i = 0;
@@ -176,7 +194,7 @@ int main(int ac, char** av)
         fflush(stdout);
 
         //TODO: remove SDL_* prefix
-        INTERFACE::handle_events();
+        //INTERFACE::handle_events();
         
         CPU::tick();
         
@@ -193,6 +211,7 @@ int main(int ac, char** av)
         {
             MDA::tick_frame();
             frame_time -= attotime::from_hz(50);
+            INTERFACE::update_screen();
         }
         else if(frame_time >= attotime::from_hz(60) && isa1slot == "cga")
         {

@@ -1044,6 +1044,10 @@ void interrupt(u8 num, u8 offset)
     }
 }
 
+#ifndef USE_SDL
+#define printf(...) INTERFACE::log_cb->log(RETRO_LOG_ERROR, __VA_ARGS__)
+#endif
+
 int seg = SEG_DEFAULT;
 int rep = 0; //0 is no rep. 1 is repe. 2 is repne.
 bool i8080 = false; //This is for the NEC V20.

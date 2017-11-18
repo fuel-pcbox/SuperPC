@@ -1,3 +1,7 @@
+#ifndef USE_SDL
+#include "libretro.h"
+#endif
+
 #ifndef INTERFACE_H_INCLUDED
 #define INTERFACE_H_INCLUDED
 
@@ -7,7 +11,7 @@
 
 #include <functional>
 
-#define USE_SDL
+//#define USE_SDL
 
 #ifdef USE_SDL
     //TODO: fix this dirty workaround
@@ -30,37 +34,31 @@ namespace INTERFACE
 extern bool quitflag;
 extern bool emulatingflag;
 
+#ifndef USE_SDL
+extern retro_log_callback* log_cb;
+#endif
+
 #ifdef USE_SDL
 typedef SDL_Surface Surface;
 typedef SDL_Event Event;
 #endif
 
 extern FILE* flop1;
+extern int vidwidth, vidheight;
 
+#ifdef USE_SDL
 extern Surface* screen;
+#else
+extern u8* screen;
+#endif
 
-inline int init(int width = 720, int height = 350)
-{
-    int ret = SDL_Init(SDL_INIT_EVERYTHING);
-    screen = SDL_SetVideoMode(width, height, 24, SDL_SWSURFACE);
-    return ret;
-}
+int init(int width = 720, int height = 350);
 
-inline void quit()
-{
-    if(flop1) fclose(flop1);
-    SDL_Quit();
-}
+void quit();
 
-inline void window_caption(const char *title, const char *icon = NULL)
-{
-    SDL_WM_SetCaption(title, icon);
-}
+void window_caption(const char *title, const char *icon = NULL);
 
-inline int update_screen()
-{
-    SDL_Flip(screen);
-}
+void update_screen();
 
 int handle_events();
 

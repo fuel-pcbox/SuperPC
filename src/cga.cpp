@@ -3,6 +3,12 @@
 
 namespace CGA
 {
+
+#ifdef USE_SDL
+SDL_Surface* cgascr;
+#else
+u8 cgascr[640*400];
+#endif
 u8 ROM[0x2000];
 u8 crtcindex = 0;
 u8 htotal = 0;
@@ -54,10 +60,17 @@ u8 status_r(u16 addr)
 
 void putpix(int x, int y, u8 r, u8 g, u8 b)
 {
-    u8* p = (u8*)INTERFACE::screen->pixels;
-    p[(((y*INTERFACE::screen->w)+x)*3)] = b;
-    p[(((y*INTERFACE::screen->w)+x)*3)+1] = g;
-    p[(((y*INTERFACE::screen->w)+x)*3)+2] = r;
+#ifdef USE_SDL
+    u8* p = static_cast<u8*>(cgascr->pixels);//(u8*)INTERFACE::screen->pixels;
+    p[(((y*640)+x)*3)] = b;
+    p[(((y*640)+x)*3)+1] = g;
+    p[(((y*640)+x)*3)+2] = r;
+#else
+    cgascr[(((y*640)+x)*4)] = r;
+    cgascr[(((y*640)+x)*4)+1] = g;
+    cgascr[(((y*640)+x)*4)+2] = b;
+    cgascr[(((y*640)+x)*4)+3] = 0xff;
+#endif
 }
 
 void tick_frame()
@@ -191,6 +204,9 @@ void tick_frame()
         framecount++;
         if(framecount == 0x1F) framecount = 0;
     }
+#ifdef USE_SDL
+    SDL_BlitSurface(cgascr, nullptr, INTERFACE::screen, NULL);
+#endif
 }
 void cga_w(u16 addr, u8 value)
 {

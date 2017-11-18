@@ -9,12 +9,35 @@ FILE* flop1 = nullptr;
 
 bool quitflag = false;
 bool emulatingflag = false;
-Surface* screen = NULL;
+int vidwidth = 720;
+int vidheight = 350;
 
-extern inline int init(int width, int height);
-extern inline void quit();
-extern inline void window_caption(const char *title, const char *icon);
-extern inline int update_screen();
+#ifdef USE_SDL
+Surface* screen = NULL;
+#endif
+
+int init(int width, int height)
+{
+    int ret = SDL_Init(SDL_INIT_EVERYTHING);
+    screen = SDL_SetVideoMode(width, height, 24, SDL_SWSURFACE);
+    return ret;
+}
+
+void quit()
+{
+    if(flop1) fclose(flop1);
+    SDL_Quit();
+}
+
+void window_caption(const char *title, const char *icon)
+{
+    SDL_WM_SetCaption(title, icon);
+}
+
+void update_screen()
+{
+    SDL_Flip(screen);
+}
 
 void load_floppy(const char* filename)
 {

@@ -4,8 +4,11 @@
 //http://en.wikipedia.org/wiki/IBM_Monochrome_Display_Adapter
 namespace MDA
 {
-
+#ifdef USE_SDL
 SDL_Surface* mdscr;
+#else
+u8 mdscr[720*350*4];
+#endif
 const u32 MDW = 720;
 const u32 MDH = 350;
 
@@ -37,18 +40,27 @@ u8 status_r(u16 addr)
 
 void putpix(int x, int y, u8 r, u8 g, u8 b)
 {
+#ifdef USE_SDL
     u8* p = static_cast<u8*>(mdscr->pixels);//(u8*)INTERFACE::screen->pixels;
-    p[(((y*MDW)+x)*3)] = b;
-    p[(((y*MDW)+x)*3)+1] = g;
-    p[(((y*MDW)+x)*3)+2] = r;
+    p[(((y*720)+x)*3)] = b;
+    p[(((y*720)+x)*3)+1] = g;
+    p[(((y*720)+x)*3)+2] = r;
+#else
+    INTERFACE::screen[(((y*720)+x)*4)] = 0xff;
+    INTERFACE::screen[(((y*720)+x)*4)+1] = r;
+    INTERFACE::screen[(((y*720)+x)*4)+2] = g;
+    INTERFACE::screen[(((y*720)+x)*4)+3] = b;
+#endif
 }
 
 bool shouldblank = false;
 
 void init()
 {
+#ifdef USE_SDL
 	auto sff = INTERFACE::screen->format;
-	mdscr = SDL_CreateRGBSurface(SDL_SWSURFACE, MDW, MDH, sff->BitsPerPixel, sff->Rmask, sff->Gmask, sff->Bmask, sff->Amask); 
+    mdscr = SDL_CreateRGBSurface(SDL_SWSURFACE, MDW, MDH, sff->BitsPerPixel, sff->Rmask, sff->Gmask, sff->Bmask, sff->Amask); 
+#endif
 }
 
 void tick_frame()
@@ -185,8 +197,11 @@ void tick_frame()
     framecount++;
     if(framecount == 0x1F) framecount = 0;
     
-    
+#ifdef USE_SDL    
     SDL_BlitSurface(mdscr, nullptr, INTERFACE::screen, NULL);
+#else
+    memcpy(INTERFACE::screen, mdscr, 720*350*4);
+#endif
 }
 
 void mda_w(u16 addr, u8 value)
