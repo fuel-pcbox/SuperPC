@@ -29,6 +29,9 @@ u32 getaddr(u16 seg, u16 offset);
 u8 rb(u16 seg, u16 off); //read byte
 void wb(u16 seg, u16 off, u8 value); //write byte
 
+u8 rb(u32 off); //read byte
+void wb(u32 off, u8 value); //write byte
+
 } //namespace RAM
 
 #endif // RAM_H_INCLUDED

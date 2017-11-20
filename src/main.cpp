@@ -49,7 +49,7 @@ int main(int ac, char** av)
     FILE* config = fopen(av[1],"r");
     fscanf(config,"isa1=%s\n",isa1);
     fscanf(config,"machine=%s\n",machine);
-    fscanf(config,"cpuclock=%d\n",cpuclock_cfg);
+    fscanf(config,"cpuclock=%d\n",&cpuclock_cfg);
     fscanf(config,"flop1=%s\n",flop1);
 
     cpuclock = attotime::from_hz(cpuclock_cfg);
@@ -194,7 +194,7 @@ int main(int ac, char** av)
         fflush(stdout);
 
         //TODO: remove SDL_* prefix
-        //INTERFACE::handle_events();
+        INTERFACE::handle_events();
         
         CPU::tick();
         

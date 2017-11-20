@@ -686,7 +686,7 @@ u8 rb(u16 addr)
                 u8 ret = keyboardshift.at(keyboardshift.size()-1);
                 return ret;
             }
-            return 0x00;
+            return 0x01; //HACK
             break;
         }
         case 2:

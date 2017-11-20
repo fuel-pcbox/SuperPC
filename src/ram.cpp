@@ -76,4 +76,29 @@ void wb(u16 seg, u16 off, u8 value)
     RAM[addr] = value;
 }
 
+u8 rb(u32 off)
+{
+    int i;
+    for(i = 0; i<handlers.size(); i++)
+    {
+        if(off>handlers[i].start && off<handlers[i].end) return handlers[i].rb(off-handlers[i].start);
+    }
+    return RAM[off];
+}
+
+void wb(u32 off, u8 value)
+{
+    int i;
+    for(i = 0; i<handlers.size(); i++)
+    {
+        if(i == handlers.size()) break;
+        if(off>handlers[i].start && off<handlers[i].end)
+        {
+            if(handlers[i].wb != nullptr) handlers[i].wb(off,value);
+            return;
+        }
+    }
+    RAM[off] = value;
+}
+
 } //namespace RAM

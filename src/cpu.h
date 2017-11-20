@@ -20,6 +20,7 @@ enum cputype
 
 struct locs
 {
+    bool srcptrvalid;
     union
     {
         u8* src8;
@@ -30,6 +31,7 @@ struct locs
         u8* dst8;
         u16* dst16;
     };
+    u32 ea_seg, ea_offset;
 };
 
 enum
