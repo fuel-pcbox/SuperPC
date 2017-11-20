@@ -197,7 +197,7 @@ void wb(u16 addr, u8 data)
     {
         switch(data & 0xC0)
         {
-        case 0:
+        case 0x00:
         {
             chan[0].accessmode = (data >> 4) & 3;
             chan[0].mode = (data >> 1) & 7;
@@ -205,14 +205,14 @@ void wb(u16 addr, u8 data)
             chan[0].flip_flop = false;
             break;
         }
-        case 1:
+        case 0x40:
         {
             chan[1].accessmode = (data >> 4) & 3;
             chan[1].mode = (data >> 1) & 7;
             chan[1].enabled = false;
             break;
         }
-        case 2:
+        case 0x80:
         {
             chan[2].accessmode = (data >> 4) & 3;
             chan[2].mode = (data >> 1) & 7;

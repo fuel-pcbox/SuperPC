@@ -217,6 +217,7 @@ int main(int ac, char** av)
         {
             CGA::tick_frame();
             frame_time -= attotime::from_hz(60);
+            INTERFACE::update_screen();
         }
     }
 
