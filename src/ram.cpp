@@ -55,7 +55,7 @@ u8 rb(u16 seg, u16 off)
     u32 addr = getaddr(seg,off);
     for(i = 0; i<handlers.size(); i++)
     {
-        if(addr>handlers[i].start && addr<handlers[i].end) return handlers[i].rb(addr-handlers[i].start);
+        if(addr>=handlers[i].start && addr<handlers[i].end) return handlers[i].rb(addr-handlers[i].start);
     }
     return RAM[addr];
 }
@@ -67,7 +67,7 @@ void wb(u16 seg, u16 off, u8 value)
     for(i = 0; i<handlers.size(); i++)
     {
         if(i == handlers.size()) break;
-        if(addr>handlers[i].start && addr<handlers[i].end)
+        if(addr>=handlers[i].start && addr<handlers[i].end)
         {
             if(handlers[i].wb != nullptr) handlers[i].wb(addr,value);
             return;
@@ -81,7 +81,7 @@ u8 rb(u32 off)
     int i;
     for(i = 0; i<handlers.size(); i++)
     {
-        if(off>handlers[i].start && off<handlers[i].end) return handlers[i].rb(off-handlers[i].start);
+        if(off>=handlers[i].start && off<handlers[i].end) return handlers[i].rb(off-handlers[i].start);
     }
     return RAM[off];
 }
@@ -92,7 +92,7 @@ void wb(u32 off, u8 value)
     for(i = 0; i<handlers.size(); i++)
     {
         if(i == handlers.size()) break;
-        if(off>handlers[i].start && off<handlers[i].end)
+        if(off>=handlers[i].start && off<handlers[i].end)
         {
             if(handlers[i].wb != nullptr) handlers[i].wb(off,value);
             return;
