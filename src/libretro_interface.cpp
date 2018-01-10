@@ -48,7 +48,7 @@ static retro_input_state_t input_state_cb;
  int init(int width, int height)
  {
      screen = (u8*)malloc(width * height * 4);
-     memset(screen, 0, width * height);
+     memset(screen, 0, width * height * 4);
  }
  
  void quit()
