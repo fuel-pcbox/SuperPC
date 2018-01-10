@@ -46,10 +46,10 @@ void putpix(int x, int y, u8 r, u8 g, u8 b)
     p[(((y*720)+x)*3)+1] = g;
     p[(((y*720)+x)*3)+2] = r;
 #else
-    INTERFACE::screen[(((y*720)+x)*4)] = 0xff;
-    INTERFACE::screen[(((y*720)+x)*4)+1] = r;
-    INTERFACE::screen[(((y*720)+x)*4)+2] = g;
-    INTERFACE::screen[(((y*720)+x)*4)+3] = b;
+    mdscr[(((y*720)+x)*4)] = 0xff;
+    mdscr[(((y*720)+x)*4)+1] = r;
+    mdscr[(((y*720)+x)*4)+2] = g;
+    mdscr[(((y*720)+x)*4)+3] = b;
 #endif
 }
 
