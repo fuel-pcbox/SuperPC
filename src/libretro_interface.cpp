@@ -150,7 +150,7 @@ void retro_run() {
     {
         MDA::tick_frame();
         INTERFACE::frame_time -= attotime::from_hz(50);
-        video_cb(MDA::mdscr, 720, 350, 720*4);
+        video_cb(INTERFACE::screen, 720, 350, 720*4);
         break;
     }
   }

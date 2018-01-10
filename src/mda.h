@@ -9,6 +9,11 @@
 
 namespace MDA
 {
+#ifdef USE_SDL
+extern SDL_Surface* mdscr;
+#else
+extern u8 mdscr[720*350*4];
+#endif
 extern u8 ROM[0x2000];
 extern u8 crtcindex;
 extern u8 htotal;
