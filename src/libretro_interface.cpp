@@ -96,7 +96,53 @@ void retro_init() {
   }
   env_cb(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &INTERFACE::log_cb);
 
-  INTERFACE::init(720,350);
+  PIC::pic[0].init1 = false;
+    PIC::pic[0].init2 = false;
+    PIC::pic[0].enabled = false;
+    DMA_XT::chan[0].access_flip_flop = false;
+    CPU::cr0 = 0;
+
+    u32 cpuclock_cfg = 4772727;
+
+    INTERFACE::cpuclock = attotime::from_hz(cpuclock_cfg);
+    
+    char path[PATH_MAX];
+
+    sprintf(path, "%s/%s", INTERFACE::appdir, "roms/video/mda/mda.rom");
+
+    FILE* mda = fopen(path,"rb");
+    fread(MDA::ROM,1,0x2000,mda);
+    fseek(mda,0,SEEK_SET);
+    fread(CGA::ROM,1,0x2000,mda);
+    fclose(mda);
+
+    INTERFACE::init(720,350);
+
+    MDA::init();
+    IO_XT::handlers.push_back(MDA::mdacrtc);
+
+    CPU::type = CPU::intel8088;
+    INTERFACE::pitclock = attotime::from_hz(157500000/11/12);
+
+    sprintf(path, "%s/%s", INTERFACE::appdir, "tests/graphics/mda/text.bin");
+
+    FILE* biosfp = fopen(path, "rb");
+    fread(RAM::BIOS + 0x1e000,0x2000,1,biosfp);
+    fclose(biosfp);
+
+    sprintf(path, "%s/%s", INTERFACE::appdir, "roms/machines/ibmpc/ibm-basic-1.10.rom");
+
+    biosfp = fopen(path, "rb");
+    fread(RAM::BIOS + 0x16000,0x8000,1,biosfp);
+    fclose(biosfp);
+
+    RAM::handlers.push_back(RAM::bios_handler);
+    IO_XT::handlers.push_back(DMA_XT::handler);
+    IO_XT::handlers.push_back(DMA_XT::handler2);
+    IO_XT::handlers.push_back(PPI::handler);
+    IO_XT::handlers.push_back(PIT::pit);
+    IO_XT::handlers.push_back(PIC::pic1);
+    IO_XT::handlers.push_back(FDC::handler);
 }
 
 void retro_deinit() {}
@@ -177,58 +223,6 @@ void retro_cheat_set(unsigned index, bool enabled, const char *code) {}
 
 bool retro_load_game(const struct retro_game_info *info)
 {
-    PIC::pic[0].init1 = false;
-    PIC::pic[0].init2 = false;
-    PIC::pic[0].enabled = false;
-    DMA_XT::chan[0].access_flip_flop = false;
-    CPU::cr0 = 0;
-
-    u32 cpuclock_cfg = 4772727;
-
-    INTERFACE::cpuclock = attotime::from_hz(cpuclock_cfg);
-    
-    char path[PATH_MAX];
-
-    sprintf(path, "%s/%s", INTERFACE::appdir, "roms/video/mda/mda.rom");
-
-    FILE* mda = fopen(path,"rb");
-    fread(MDA::ROM,1,0x2000,mda);
-    fseek(mda,0,SEEK_SET);
-    fread(CGA::ROM,1,0x2000,mda);
-    fclose(mda);
-
-    INTERFACE::init();
-
-    MDA::init();
-    IO_XT::handlers.push_back(MDA::mdacrtc);
-    INTERFACE::window_caption("SuperPC v0.0.1");
-
-    CPU::type = CPU::intel8088;
-    INTERFACE::pitclock = attotime::from_hz(157500000/11/12);
-
-    sprintf(path, "%s/%s", INTERFACE::appdir, "tests/graphics/mda/text.bin");
-
-    FILE* biosfp = fopen(path, "rb");
-    fread(RAM::BIOS + 0x1e000,0x2000,1,biosfp);
-    fclose(biosfp);
-
-    sprintf(path, "%s/%s", INTERFACE::appdir, "roms/machines/ibmpc/ibm-basic-1.10.rom");
-
-    biosfp = fopen(path, "rb");
-    fread(RAM::BIOS + 0x16000,0x8000,1,biosfp);
-    fclose(biosfp);
-
-    RAM::handlers.push_back(RAM::bios_handler);
-    IO_XT::handlers.push_back(DMA_XT::handler);
-    IO_XT::handlers.push_back(DMA_XT::handler2);
-    IO_XT::handlers.push_back(PPI::handler);
-    IO_XT::handlers.push_back(PIT::pit);
-    IO_XT::handlers.push_back(PIC::pic1);
-    IO_XT::handlers.push_back(FDC::handler);
-
-    int pixformat = RETRO_PIXEL_FORMAT_XRGB8888;
-    
-    if(!env_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &pixformat)) return false;
 }
 
 bool retro_load_game_special(unsigned game_type,
