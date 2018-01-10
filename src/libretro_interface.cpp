@@ -95,6 +95,8 @@ void retro_init() {
     snprintf(INTERFACE::appdir, sizeof(INTERFACE::appdir), "%s/superpc", sysdir);
   }
   env_cb(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &INTERFACE::log_cb);
+
+  INTERFACE::init(720,350);
 }
 
 void retro_deinit() {}
